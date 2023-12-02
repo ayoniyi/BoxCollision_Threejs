@@ -9,6 +9,7 @@
     <style>
       body {
         margin: 0;
+        background: #0c4a6e;
       }
     </style>
 
@@ -44,7 +45,10 @@
         1000
       );
 
-      const renderer = new THREE.WebGLRenderer();
+      const renderer = new THREE.WebGLRenderer({
+        alpha: true,
+        antialias: true,
+      });
       //shadows
       renderer.shadowMap.enabled = true;
       //
@@ -135,7 +139,8 @@
               box2: ground,
             })
           ) {
-            this.velocity.y *= 0.8;
+            const friction = 0.5;
+            this.velocity.y *= friction;
             this.velocity.y = -this.velocity.y;
           } else this.position.y += this.velocity.y;
         }
@@ -174,10 +179,11 @@
 
       //plane or ground
       const ground = new Box({
-        width: 5,
+        width: 10,
         height: 0.5,
-        depth: 10,
-        color: "#0000ff",
+        depth: 50,
+        //color: "#0000ff",
+        color: "#0369a1",
         position: {
           x: 0,
           y: -2,
@@ -195,12 +201,16 @@
       //light
       const light = new THREE.DirectionalLight(0xffffff, 1);
       light.position.y = 3;
-      light.position.z = 2;
+      light.position.z = 1;
       light.castShadow = true;
       scene.add(light);
 
-      camera.position.z = 10;
-      camera.position.y = 5;
+      scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+
+      //   camera.position.z = 5;
+      //   camera.position.y = 1;
+
+      camera.position.set(2.61, 0.74, 5);
 
       console.log(cube.position.y - cube.height / 2);
       console.log(cube.position.y + cube.height / 2);
@@ -239,6 +249,9 @@
           case "KeyW":
             keys.w.pressed = true;
             break;
+          case "Space":
+            cube.velocity.y = 0.15;
+            break;
         }
       });
       window.addEventListener("keyup", (event) => {
@@ -258,27 +271,30 @@
         }
       });
 
-      const enemy = new Box({
-        width: 1,
-        height: 1,
-        depth: 1,
-        position: {
-          x: 0,
-          y: 0,
-          z: -4,
-        },
-        velocity: {
-          x: 0,
-          y: 0,
-          z: 0.05,
-        },
-        color: "red",
-        zAcceleration: true,
-      });
-      enemy.castShadow = true;
-      scene.add(enemy);
+      //   const enemy = new Box({
+      //     width: 1,
+      //     height: 1,
+      //     depth: 1,
+      //     position: {
+      //       x: 0,
+      //       y: 0,
+      //       z: -4,
+      //     },
+      //     velocity: {
+      //       x: 0,
+      //       y: 0,
+      //       z: 0.05,
+      //     },
+      //     color: "red",
+      //     zAcceleration: true,
+      //   });
+      //   enemy.castShadow = true;
+      //   scene.add(enemy);
 
-      const enemies = [enemy];
+      const enemies = [];
+
+      let frames = 0;
+      let spawnRate = 180;
 
       function animate() {
         const animationId = requestAnimationFrame(animate);
@@ -304,6 +320,32 @@
             cancelAnimationFrame(animationId);
           }
         });
+
+        if (frames % spawnRate === 0) {
+          if (spawnRate > 30) spawnRate -= 20;
+          const enemy = new Box({
+            width: 1,
+            height: 1,
+            depth: 1,
+            position: {
+              x: (Math.random() - 0.5) * 10,
+              y: 0,
+              z: -20,
+            },
+            velocity: {
+              x: 0,
+              y: 0,
+              z: 0.05,
+            },
+            color: "red",
+            zAcceleration: true,
+          });
+          enemy.castShadow = true;
+          scene.add(enemy);
+          enemies.push(enemy);
+        }
+
+        frames++;
         //cube.position.y += -0.01;
         //cube.rotation.x += 0.01;
         // cube.rotation.y += 0.01;
