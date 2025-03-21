@@ -34,6 +34,12 @@
     </script>
 
     <script type="module">
+      window.onload = () => {
+        alert(
+          "Welcome!, use the arrow keys or the w,a,s and d keys on your keyboard to move the character around."
+        );
+      };
+
       import * as THREE from "three";
       import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
